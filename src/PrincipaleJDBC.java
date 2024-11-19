@@ -13,30 +13,9 @@ public class PrincipaleJDBC {
     // IL FAUT PENSER A AJOUTER MYSQLCONNECTOR AU CLASSPATH
 
     public static void main(String[] args) {
-
-        // variables de connection
-        String userName = "root";
-        String password = "";
-        String serverName = "127.0.0.1";
-        String portNumber = "3306"; // Port pour XAMP
-        //String portNumber = "8889"; // Port par défaut sur MAMP
-        String tableName = "personne";
-
-        // il faut une base nommee testPersonne !
-        String dbName = "testpersonne";
-
         try {
-            // chargement du driver jdbc
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connect = new DBConnection().getConnection();
 
-            // creation de la connection
-            Properties connectionProps = new Properties();
-            connectionProps.put("user", userName);
-            connectionProps.put("password", password);
-            String urlDB = "jdbc:mysql://" + serverName + ":";
-            urlDB += portNumber + "/" + dbName;
-            System.out.println(urlDB);
-            Connection connect = DriverManager.getConnection(urlDB, connectionProps);
             //Connection connect = DriverManager.getConnection("jdbc:mysql://db4free.net/testpersonne","scruzlara", "root2014");
             // creation de la table Personne
             String createString = "CREATE TABLE Personne ( "
@@ -135,15 +114,8 @@ public class PrincipaleJDBC {
             String drop = "DROP TABLE Personne";
             stmt = connect.createStatement();
             stmt.executeUpdate(drop);
-
-        } catch (SQLException e) {
+        }catch (SQLException e) {
             System.out.println("*** ERREUR SQL ***");
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.out.println("*** ERREUR lors du chargement du driver ***");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("*** ERREUR inconnue... ***");
             e.printStackTrace();
         }
     }

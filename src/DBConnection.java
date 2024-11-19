@@ -7,48 +7,39 @@ import java.sql.Statement;
 import java.util.Properties;
 public class DBConnection{
 
-    private static Connection connect;
-    private String urlDB;
+    private static Connection connect = null;
+    private static String userName = "root";
+    private static String password = "";
+    private static String serverName = "127.0.0.1";
+    private static String portNumber = "3306";
+    private static String tableName = "personne";
+    private static String dbName = "testpersonne";
 
-    private Properties properties;
-
-    public DBConnection(){
-        // variables de connection
-        String userName = "root";
-        String password = "";
-        String serverName = "127.0.0.1";
-        String portNumber = "3306"; // Port pour XAMP
-        //String portNumber = "8889"; // Port par défaut sur MAMP
-        String tableName = "personne";
-        // il faut une base nommee testPersonne !
-        String dbName = "testpersonne";
+    private DBConnection() {
         try {
-            // chargement du driver jdbc
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
             // creation de la connection
-            properties = new Properties();
+            Properties properties = new Properties();
             properties.put("user", userName);
             properties.put("password", password);
-            urlDB = "jdbc:mysql://" + serverName + ":";
+
+            String urlDB = "jdbc:mysql://" + serverName + ":";
             urlDB += portNumber + "/" + dbName;
-
-
-        }catch (ClassNotFoundException e) {
-            System.out.println("*** ERREUR lors du chargement du driver ***");
+            connect = DriverManager.getConnection(urlDB, properties);
+        } catch (SQLException e) {
+            System.out.println("*** ERREUR SQL ***");
             e.printStackTrace();
         }
     }
 
-    Connection getConnection(){
-        if(connect== null) {
-            try {
-                connect = DriverManager.getConnection(urlDB, properties);
-            } catch (SQLException e) {
-                System.out.println("*** ERREUR SQL ***");
-                e.printStackTrace();
-            }
+    public static synchronized Connection getConnection(){
+        if(connect == null) {
+            new DBConnection();
         }
         return connect;
+    }
+
+    public static void setNomDB(String nomDB){
+        dbName = nomDB;
+        connect = null;
     }
 }

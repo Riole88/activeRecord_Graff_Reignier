@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class Personne {
@@ -76,6 +73,18 @@ public class Personne {
             throw new RuntimeException(e);
         }
         return res;
+    }
+
+    public static void deleteTable(){
+        try{
+            Connection connect = DBConnection.getConnection();
+            String SQLPrep = "DROP TABLE IF EXISTS Personne";
+            PreparedStatement stmt = connect.prepareStatement(SQLPrep);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getId() {

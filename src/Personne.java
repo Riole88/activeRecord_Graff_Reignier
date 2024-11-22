@@ -46,9 +46,12 @@ public class Personne {
 
             ResultSet rs = prep.getResultSet();
 
-            String nom = rs.getString("nom");
-            String prenom = rs.getString("prenom");
-            res = new Personne(nom, prenom);
+           rs.next();
+           String nom = rs.getString("nom");
+           String prenom = rs.getString("prenom");
+           res = new Personne(nom, prenom);
+           res.setId(rs.getInt("id"));
+
         } catch (SQLException e1) {
             throw new RuntimeException(e1);
         }
@@ -175,5 +178,22 @@ public class Personne {
         }
     }
 
+    public static int getIdIncrement(PreparedStatement prep1) throws SQLException{
+        ResultSet rs = prep1.getGeneratedKeys();
+        int idReturn = -1;
+        if(rs.next()){
+            idReturn = rs.getInt(1);
+        }
+        return idReturn;
+    }
+
+    public void saveNew() throws SQLException{
+        Connection connect = DBConnection.getConnection();
+        String insertString = "INSERT INTO Personne(nom,prenom) VALUES(?,?)";
+        PreparedStatement prep1 = connect.prepareStatement(insertString);
+        prep1.setString(1, "nom");
+        prep1.setString(2,"prenom");
+        prep1.execute();
+    }
 
 }

@@ -37,4 +37,23 @@ public class Personne {
         return res;
     }
 
+    public static Personne findById(int idPers){
+        Personne res = null;
+        try{
+            Connection connect = DBConnection.getConnection();
+            String SQLPrep = "SELECT * FROM Personne WHERE id = idPers;";
+            PreparedStatement prep = connect.prepareStatement(SQLPrep);
+            prep.execute();
+
+            ResultSet rs = prep.getResultSet();
+
+            String nom = rs.getString("nom");
+            String prenom = rs.getString("prenom");
+            res = new Personne(nom,prenom);
+        }catch(SQLException e1){
+            throw new RuntimeException(e1);
+        }
+        return res;
+    }
+
 }

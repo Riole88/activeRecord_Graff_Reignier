@@ -88,22 +88,22 @@ public class Personne {
         }
     }
 
-    public static void save(Personne p) {
+    public void save() {
         try {
             Connection connect = DBConnection.getConnection();
-            if (p.getId() == -1) {
+            if (this.getId() == -1) {
                 String SQLPrep = "INSERT INTO Personne VALUES (?,?,?)";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);
                 prep.setInt(1, 0);
-                prep.setString(2, p.getNom());
-                prep.setString(3, p.getPrenom());
+                prep.setString(2, this.getNom());
+                prep.setString(3, this.getPrenom());
                 prep.executeUpdate();
             }else{
                 String SQLPrep = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);
-                prep.setString(1, p.getNom());
-                prep.setString(2, p.getPrenom());
-                prep.setInt(3, p.getId());
+                prep.setString(1, this.getNom());
+                prep.setString(2, this.getPrenom());
+                prep.setInt(3, this.getId());
             }
         }catch (SQLException e){
             throw new RuntimeException(e);
@@ -134,11 +134,17 @@ public class Personne {
         try{
             Connection connect = DBConnection.getConnection();
             String SQLPrep = "CREATE TABLE `Personne` (" +
-                    "  `id` int(11) NOT NULL AUTO_INCREMENT," +
+                    "  `id` int(11) NOT NULL PRIMARY KEY," +
                     "  `nom` varchar(40) NOT NULL," +
                     "  `prenom` varchar(40) NOT NULL" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
             PreparedStatement prep = connect.prepareStatement(SQLPrep);
+            prep.execute();
+
+            String SQLPrepAlter = "ALTER TABLE `Personne`" +
+                    "  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;";
+            prep = connect.prepareStatement(SQLPrepAlter);
+            prep.execute();
         }catch(SQLException e2){
             throw new RuntimeException(e2);
         }
@@ -156,7 +162,7 @@ public class Personne {
                 prep1.setString(1,String.valueOf(this.id));
                 prep1.execute();
 
-                String SQLPrep = "DELETE FROM personne WHERE id = ?;";
+                String SQLPrep = "DELETE FROM Personne WHERE id = ?;";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);
                 prep.setString(1, String.valueOf(this.id));
                 prep.execute();

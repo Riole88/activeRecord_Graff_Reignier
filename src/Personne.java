@@ -39,8 +39,9 @@ public class Personne {
         Personne res = null;
         try {
             Connection connect = DBConnection.getConnection();
-            String SQLPrep = "SELECT * FROM Personne WHERE id = idPers;";
+            String SQLPrep = "SELECT * FROM Personne WHERE id = ?";
             PreparedStatement prep = connect.prepareStatement(SQLPrep);
+            prep.setInt(1, idPers);
             prep.execute();
 
             ResultSet rs = prep.getResultSet();

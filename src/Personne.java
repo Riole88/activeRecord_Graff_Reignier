@@ -103,6 +103,10 @@ public class Personne {
         this.nom = name;
     }
 
+    public void setId(int idt){
+        this.id = idt;
+    }
+
     public static void createTable(){
         try{
             Connection connect = DBConnection.getConnection();
@@ -114,6 +118,31 @@ public class Personne {
             PreparedStatement prep = connect.prepareStatement(SQLPrep);
         }catch(SQLException e2){
             throw new RuntimeException(e2);
+        }
+    }
+
+    public void delete(){
+        try {
+            Connection connect = DBConnection.getConnection();
+            if (this.id != -1) {
+                //Si la personne est présente d'un un film, cela va la supprimé pour ne pas aavoir de problème avec les clés étrangères
+                String SQLPrepFilm = "UPDATE film" +
+                        "SET id_rea = NULL," +
+                        "WHERE id_rea = ?;";
+                PreparedStatement prep1 = connect.prepareStatement(SQLPrepFilm);
+                prep1.setString(1,String.valueOf(this.id));
+                prep1.execute();
+
+                String SQLPrep = "DELETE FROM personne WHERE id = ?;";
+                PreparedStatement prep = connect.prepareStatement(SQLPrep);
+                prep.setString(1, String.valueOf(this.id));
+                prep.execute();
+                //Changement de l'id de la personne
+                this.setId(-1);
+
+            }
+        }catch(SQLException e1){
+            throw new RuntimeException(e1);
         }
     }
 

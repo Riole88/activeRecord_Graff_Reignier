@@ -90,5 +90,23 @@ public class Personne {
         return prenom;
     }
 
+    public void setNom(String name){
+        this.nom = name;
+    }
+
+    public static void createTable(){
+        try{
+            Connection connect = DBConnection.getConnection();
+            String SQLPrep = "CREATE TABLE `Personne` (" +
+                    "  `id` int(11) NOT NULL," +
+                    "  `nom` varchar(40) NOT NULL," +
+                    "  `prenom` varchar(40) NOT NULL" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+            PreparedStatement prep = connect.prepareStatement(SQLPrep);
+        }catch(SQLException e2){
+            throw new RuntimeException(e2);
+        }
+    }
+
 
 }

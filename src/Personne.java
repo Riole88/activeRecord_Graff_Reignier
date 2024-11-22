@@ -87,6 +87,28 @@ public class Personne {
         }
     }
 
+    public static void save(Personne p) {
+        try {
+            Connection connect = DBConnection.getConnection();
+            if (p.getId() == -1) {
+                String SQLPrep = "INSERT INTO Personne VALUES (?,?,?)";
+                PreparedStatement prep = connect.prepareStatement(SQLPrep);
+                prep.setInt(1, 0);
+                prep.setString(2, p.getNom());
+                prep.setString(3, p.getPrenom());
+                prep.executeUpdate();
+            }else{
+                String SQLPrep = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
+                PreparedStatement prep = connect.prepareStatement(SQLPrep);
+                prep.setString(1, p.getNom());
+                prep.setString(2, p.getPrenom());
+                prep.setInt(3, p.getId());
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public int getId() {
         return id;
     }
@@ -107,7 +129,7 @@ public class Personne {
         try{
             Connection connect = DBConnection.getConnection();
             String SQLPrep = "CREATE TABLE `Personne` (" +
-                    "  `id` int(11) NOT NULL," +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT," +
                     "  `nom` varchar(40) NOT NULL," +
                     "  `prenom` varchar(40) NOT NULL" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";

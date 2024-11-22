@@ -46,12 +46,12 @@ public class Personne {
 
             ResultSet rs = prep.getResultSet();
 
-           rs.next();
-           String nom = rs.getString("nom");
-           String prenom = rs.getString("prenom");
-           res = new Personne(nom, prenom);
-           res.setId(rs.getInt("id"));
-
+            System.out.println(rs.next());
+            String nom = rs.getString("nom");
+            String prenom = rs.getString("prenom");
+            Personne p = new Personne(nom, prenom);
+            p.setId(rs.getInt("id"));
+            res = p;
         } catch (SQLException e1) {
             throw new RuntimeException(e1);
         }
@@ -71,7 +71,9 @@ public class Personne {
             while (rs.next()) {
                 String nom = rs.getString("nom");
                 String prenom = rs.getString("prenom");
-                res.add(new Personne(nom, prenom));
+                Personne p = new Personne(nom, prenom);
+                p.setId(rs.getInt("id"));
+                res.add(p);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -107,6 +109,7 @@ public class Personne {
                 prep.setString(1, this.getNom());
                 prep.setString(2, this.getPrenom());
                 prep.setInt(3, this.getId());
+                prep.execute();
             }
         }catch (SQLException e){
             throw new RuntimeException(e);
@@ -145,7 +148,7 @@ public class Personne {
             prep.execute();
 
             String SQLPrepAlter = "ALTER TABLE `Personne`" +
-                    "  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;";
+                    "  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;";
             prep = connect.prepareStatement(SQLPrepAlter);
             prep.execute();
         }catch(SQLException e2){
@@ -159,8 +162,8 @@ public class Personne {
             if (this.id != -1) {
                 //Si la personne est présente d'un un film, cela va la supprimé pour ne pas aavoir de problème avec les clés étrangères
                 String SQLPrepFilm = "UPDATE film" +
-                        "SET id_rea = NULL," +
-                        "WHERE id_rea = ?;";
+                        " SET id_rea = NULL" +
+                        " WHERE id_rea = ?;";
                 PreparedStatement prep1 = connect.prepareStatement(SQLPrepFilm);
                 prep1.setString(1,String.valueOf(this.id));
                 prep1.execute();

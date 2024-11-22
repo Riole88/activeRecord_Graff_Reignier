@@ -38,7 +38,7 @@ public class DBConnection{
         return connect;
     }
 
-    public static void setNomDB(String nomDB){
+    public static synchronized void setNomDB(String nomDB){
         dbName = nomDB;
         connect = null;
     }

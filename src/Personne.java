@@ -46,12 +46,13 @@ public class Personne {
 
             ResultSet rs = prep.getResultSet();
 
-            System.out.println(rs.next());
-            String nom = rs.getString("nom");
-            String prenom = rs.getString("prenom");
-            Personne p = new Personne(nom, prenom);
-            p.setId(rs.getInt("id"));
-            res = p;
+            if(rs.next()) {
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                Personne p = new Personne(nom, prenom);
+                p.setId(rs.getInt("id"));
+                res = p;
+            }
         } catch (SQLException e1) {
             throw new RuntimeException(e1);
         }
@@ -97,11 +98,11 @@ public class Personne {
         try {
             Connection connect = DBConnection.getConnection();
             if (this.getId() == -1) {
-                String SQLPrep = "INSERT INTO Personne VALUES (?,?,?)";
+                String SQLPrep = "INSERT INTO Personne(nom,prenom) VALUES (?,?)";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);
-                prep.setInt(1, 0);
-                prep.setString(2, this.getNom());
-                prep.setString(3, this.getPrenom());
+                //prep.setInt(1, 0);
+                prep.setString(1, this.getNom());
+                prep.setString(2, this.getPrenom());
                 prep.executeUpdate();
             }else{
                 String SQLPrep = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
@@ -159,7 +160,7 @@ public class Personne {
     public void delete(){
         try {
             Connection connect = DBConnection.getConnection();
-            if (this.id != -1) {
+            if (this.id != -1) {/*
                 //Si la personne est présente d'un un film, cela va la supprimé pour ne pas aavoir de problème avec les clés étrangères
                 String SQLPrepFilm = "UPDATE film" +
                         " SET id_rea = NULL" +
@@ -167,7 +168,7 @@ public class Personne {
                 PreparedStatement prep1 = connect.prepareStatement(SQLPrepFilm);
                 prep1.setString(1,String.valueOf(this.id));
                 prep1.execute();
-
+*/
                 String SQLPrep = "DELETE FROM Personne WHERE id = ?;";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);
                 prep.setString(1, String.valueOf(this.id));

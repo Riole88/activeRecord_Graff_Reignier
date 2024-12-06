@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class Film {
@@ -65,10 +62,12 @@ public class Film {
 
             ResultSet rest = prep.getResultSet();
 
-            String titre = rest.getString("titre");
-            int idRea = rest.getInt("id_rea");
-            Film f = new Film(idFilm,titre, idRea);
-            res = f;
+            if(rest.next()) {
+                String titre = rest.getString("titre");
+                int idRea = rest.getInt("id_rea");
+                Film f = new Film(idFilm, titre, idRea);
+                res = f;
+            }
         }
         catch(SQLException e){
             throw new RuntimeException(e);
@@ -77,9 +76,9 @@ public class Film {
         return res;
     }
 
-    public Personne getRelisateur(int idFilm){
+    public Personne getRealisateur(){
         Personne rea = null;
-        Film f = Film.findById(idFilm);
+        Film f = Film.findById(this.getId());
         rea = Personne.findById(f.getId_real());
 
         return rea;
@@ -127,10 +126,16 @@ public class Film {
             Connection connect = DBConnection.getConnection();
             if(this.getId() == -1){
                 String SQLPrep = "INSERT INTO Film(titre,id_rea) VALUES (?,?);";
-                PreparedStatement prep = connect.prepareStatement(SQLPrep);
+                PreparedStatement prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);
                 prep.setString(1, this.getTitre());
                 prep.setInt(2,this.getId_real());
                 prep.executeUpdate();
+
+                ResultSet rs = prep.getGeneratedKeys();
+                if (rs.next()) {
+                    id = rs.getInt(1);
+                    this.setId(id);
+                }
             }
             else{
                 String SQLPrep = "UPDATE Film SET titre = ?, id_rea = ? WHERE id = ?";

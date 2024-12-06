@@ -99,11 +99,17 @@ public class Personne {
             Connection connect = DBConnection.getConnection();
             if (this.getId() == -1) {
                 String SQLPrep = "INSERT INTO Personne(nom,prenom) VALUES (?,?)";
-                PreparedStatement prep = connect.prepareStatement(SQLPrep);
+                PreparedStatement prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);
                 //prep.setInt(1, 0);
                 prep.setString(1, this.getNom());
                 prep.setString(2, this.getPrenom());
                 prep.executeUpdate();
+
+                ResultSet rs = prep.getGeneratedKeys();
+                if (rs.next()) {
+                    id = rs.getInt(1);
+                    this.setId(id);
+                }
             }else{
                 String SQLPrep = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep);

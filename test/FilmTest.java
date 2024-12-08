@@ -11,15 +11,13 @@ public class FilmTest {
     Personne p3 = new Personne("Kubrick", "Stanley");
     Personne p4 = new Personne("Spielberg", "George");
 
-    Film f1 = new Film("Arche perdue", p1);
-    Film f2 = new Film("Alien", p2);
-    Film f3 = new Film("Temple Maudit", p1);
-    Film f4 = new Film("Blade Runner", p2);
-    Film f5 = new Film("Alien3", p4);
-    Film f6 = new Film("Fight Club", p4);
-    Film f7 = new Film("Orange Mecanique", p3);
-
-
+    Film f1 ;
+    Film f2 ;
+    Film f3 ;
+    Film f4 ;
+    Film f5 ;
+    Film f6 ;
+    Film f7 ;
 
     @BeforeEach
     /**
@@ -34,6 +32,13 @@ public class FilmTest {
         p3.save();
         p4.save();
 
+        f1 = new Film("Arche perdue", p1);
+        f2 = new Film("Alien", p2);
+        f3 = new Film("Temple Maudit", p1);
+        f4 = new Film("Blade Runner", p2);
+        f5 = new Film("Alien3", p4);
+        f6 = new Film("Fight Club", p4);
+        f7 = new Film("Orange Mecanique", p3);
 
         f1.save();
         f2.save();
@@ -74,8 +79,8 @@ public class FilmTest {
 
     @Test
     public void testFindByRealisateur(){
-        ArrayList<Film> res = f1.findByRealisateur(p1);
-        assertEquals(res.get(0).getId(),1);
-        assertEquals(res.get(1).getId(),2);
+        ArrayList<Film> res = Film.findByRealisateur(p1);
+        assertEquals(1, res.get(0).getId());
+        assertEquals(3, res.get(1).getId());
     }
 }

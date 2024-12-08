@@ -84,8 +84,8 @@ public class Film {
         return rea;
     }
 
-    public ArrayList<Film> findByRealisateur(Personne p){
-        ArrayList<Film> res = null;
+    public static ArrayList<Film> findByRealisateur(Personne p){
+        ArrayList<Film> res = new ArrayList<>();
         try{
         Connection connect = DBConnection.getConnection();
         String SQLPrep = "SELECT * FROM Film WHERE id_rea = ?;";
@@ -96,7 +96,7 @@ public class Film {
         ResultSet rest = prep.getResultSet();
 
         while(rest.next()){
-            res.add(new Film(rest.getString("titre"),p));
+            res.add(new Film(rest.getInt("id"), rest.getString("titre"), rest.getInt("id_rea")));
         }
         }
         catch (SQLException e) {
@@ -124,6 +124,7 @@ public class Film {
     public void save(){
         try{
             Connection connect = DBConnection.getConnection();
+            if(this.getId_real() == -1) throw new RealisateurAbsentException();
             if(this.getId() == -1){
                 String SQLPrep = "INSERT INTO Film(titre,id_rea) VALUES (?,?);";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);
@@ -146,8 +147,8 @@ public class Film {
                 prep.execute();
             }
         }
-        catch(SQLException e){
-            throw new RuntimeException();
+        catch(Exception e){
+            throw new RuntimeException(e);
         }
     }
 

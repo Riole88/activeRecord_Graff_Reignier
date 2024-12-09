@@ -1,86 +1,217 @@
-import org.junit.jupiter.api.*;
+//package activeRecord;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilmTest {
-    Personne p1 = new Personne("Spielberg", "Steven");
-    Personne p2 = new Personne("Scott", "Ridley");
-    Personne p3 = new Personne("Kubrick", "Stanley");
-    Personne p4 = new Personne("Spielberg", "George");
 
-    Film f1 ;
-    Film f2 ;
-    Film f3 ;
-    Film f4 ;
-    Film f5 ;
-    Film f6 ;
-    Film f7 ;
+    /**
+     * attributs reutilisables dans les tests
+     */
+    Personne spielberg, scott, kubrick, fincher;
 
     @BeforeEach
     /**
-     * prepare la base de donnees
+     * prepare la base de donnees de test
      */
-    public void creerDonneesTable() throws SQLException {
+    public void creerDonnees() throws SQLException, RealisateurAbsentException {
+        // lien vers la base de test
         Personne.createTable();
         Film.createTable();
 
-        p1.save();
-        p2.save();
-        p3.save();
-        p4.save();
+        // creation des personnes
+        spielberg = new Personne("Spielberg", "Steven");
+        spielberg.save(); // id 1
+        scott = new Personne("Scott", "Ridley");
+        scott.save(); // id 2
+        kubrick = new Personne("Kubrick", "Stanley");
+        kubrick.save(); // id 3
+        fincher = new Personne("Fincher", "David");
+        fincher.save(); // id 4
 
-        f1 = new Film("Arche perdue", p1);
-        f2 = new Film("Alien", p2);
-        f3 = new Film("Temple Maudit", p1);
-        f4 = new Film("Blade Runner", p2);
-        f5 = new Film("Alien3", p4);
-        f6 = new Film("Fight Club", p4);
-        f7 = new Film("Orange Mecanique", p3);
-
-        f1.save();
-        f2.save();
-        f3.save();
-        f4.save();
-        f5.save();
-        f6.save();
-        f7.save();
+        // creation des films
+        new Film("Arche perdue", spielberg).save(); // 1
+        new Film("Alien", scott).save(); // 2
+        new Film("Temple Maudit", spielberg).save(); // 3
+        new Film("Blade Runner", scott).save(); // 4
+        new Film("Alien3", fincher).save(); // 5
+        new Film("Fight Club", fincher).save(); // 6
+        new Film("Orange Mecanique", kubrick).save(); // 7
 
     }
 
     @AfterEach
-    public void supprimerDonnees() throws SQLException {
+    /**
+     * destruction de la base de test
+     */
+    public void detruireDonnees() throws SQLException {
+        // lien vers la base de test
         Film.deleteTable();
         Personne.deleteTable();
     }
 
-
-
     @Test
-    public void testConstructeur() {
-        Personne p5 = new Personne("LeTest", "Moi");
-        p5.save();
-        Film f = new Film("Je Suis Un Test", p5);
-        assertEquals(f.getId(), -1,"objet pas dans la base");
+    /**
+     * test constructeur de film
+     */
+    public void testConstructFilm() {
+        Film f = new Film("derniere croisade", spielberg);
+        assertEquals(f.getId(), -1, "id nouvel objet a -1");
     }
 
     @Test
-    public void testGetRealisateur(){
-        Personne p6 = new Personne("LeTest2", "Aucun");
-        p6.save();
-        Film f = new Film("Je Test la méthode getRealisateur", p6);
+    /**
+     * test de recherche par id
+     * @throws SQLException
+     */
+    public void testfindById() throws SQLException {
+        Film f = Film.findById(1);
+        assertEquals("Arche perdue", f.getTitre());
+        assertEquals("Spielberg", f.getRealisateur().getNom());
+    }
+
+    @Test
+    /**
+     * deuxieme test de recherche par id
+     * @throws SQLException
+     */
+    public void testfindByIdBis() throws SQLException {
+        Film f = Film.findById(5);
+        assertEquals("Alien3", f.getTitre());
+        assertEquals("Fincher", f.getRealisateur().getNom());
+    }
+
+    @Test
+    /**
+     * deuxieme test de recherche id inexistant
+     * @throws SQLException
+     */
+    public void testfindByIdInexistant() throws SQLException {
+        Film f = Film.findById(8);
+        Film res = null;
+        assertEquals(res, f, "pas de film correspondant");
+    }
+
+    @Test
+    /**
+     * ajout dans la table d'un nouveau film avec un realisateur existant
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void testSaveAvecRealisateur() throws SQLException,
+            RealisateurAbsentException {
+        new Film("Panic Room", fincher).save();
+
+        Film f2 = Film.findById(8);
+        assertEquals("Panic Room", f2.getTitre());
+        assertEquals("Fincher", f2.getRealisateur().getNom());
+        // verifie qu'on ne duplique pas les realisateur (normalement deja teste
+        // dans Personne)
+        assertEquals(4, f2.getRealisateur().getId());
+
+    }
+
+    @Test
+    /**
+     * Ajout d'un avec film avec un realisateur recupere dans la base
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void testSaveAvecRealisateurRecupere() throws SQLException,
+            RealisateurAbsentException {
+        Personne p = Personne.findByName("Spielberg").get(0);
+        new Film("ET", p).save();
+
+        Film f2 = Film.findById(8);
+        assertEquals("ET", f2.getTitre());
+        assertEquals("Spielberg", f2.getRealisateur().getNom());
+        // verifie qu'on ne duplique pas les realisateur (normalement deja teste
+        // dans Personne)
+        assertEquals(1, f2.getRealisateur().getId());
+
+    }
+
+    @Test
+    /**
+     * test deux ajout successifs de film
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void test2Saves() throws SQLException, RealisateurAbsentException {
+        Film f = new Film("Panic Room", fincher);
         f.save();
-        assertEquals(p6.getId(),f.getRealisateur().getId());
-        assertEquals(p6.getNom(),f.getRealisateur().getNom());
-        assertEquals(p6.getPrenom(),f.getRealisateur().getPrenom());
+        Film f2 = new Film("ET", spielberg);
+        f2.save();
+
+        Film f3 = Film.findById(9);
+        assertEquals("ET", f3.getTitre());
+        assertEquals("Spielberg", f3.getRealisateur().getNom());
+        // verifie qu'on ne duplique pas les realisateur (normalement deja teste
+        // dans Personne)
+        assertEquals(1, f3.getRealisateur().getId());
     }
 
     @Test
-    public void testFindByRealisateur(){
-        ArrayList<Film> res = Film.findByRealisateur(p1);
-        assertEquals(1, res.get(0).getId());
-        assertEquals(3, res.get(1).getId());
+    /**
+     * test creation de film avec un realisateur qu'on vient d'ajouter
+     *
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void testNouveauRealSauve() throws SQLException,
+            RealisateurAbsentException {
+        Personne p = new Personne("Zemeckis", "Robert");
+        p.save();
+        new Film("Retour vers le futur", p).save();
+
+        Film f = Film.findById(8);
+        assertEquals("Retour vers le futur", f.getTitre());
+        assertEquals("Zemeckis", f.getRealisateur().getNom());
+        // verifie qu'on ne duplique pas les realisateur (normalement deja teste
+        // dans Personne)
+        assertEquals(5, f.getRealisateur().getId());
+    }
+
+    @Test
+    /**
+     * test de sauvegarde d'un film avec un realisateur non sauve dans la base.
+     * doit lever une exception realisateur absent
+     *
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void testNouveauRealInconnu() throws SQLException,
+            RealisateurAbsentException {
+        Personne p = new Personne("Zemeckis", "Robert");
+        assertThrows(RealisateurAbsentException.class, () -> {
+                    new Film("Retour vers le futur", p).save();
+                }
+        );
+    }
+
+    @Test
+    /**
+     * test de modification de realisateur dan un film et mise a jour
+     * @throws SQLException
+     * @throws RealisateurAbsentException
+     */
+    public void testChangeNomReal() throws SQLException,
+            RealisateurAbsentException {
+        Film f = new Film("Retour vers le futur", fincher);
+        f.save();
+
+        fincher.setNom("bincher");
+        fincher.save();
+
+        Film f2 = Film.findById(8);
+        assertEquals("Retour vers le futur", f2.getTitre());
+        assertEquals("bincher", f2.getRealisateur().getNom());
+        // verifie qu'on ne duplique pas les realisateur
+        assertEquals(4, f2.getRealisateur().getId());
     }
 }

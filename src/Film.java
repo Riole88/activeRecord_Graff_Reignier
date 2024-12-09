@@ -122,9 +122,9 @@ public class Film {
     }
 
     public void save(){
+        if(this.getId_real() == -1) throw new RealisateurAbsentException();
         try{
             Connection connect = DBConnection.getConnection();
-            if(this.getId_real() == -1) throw new RealisateurAbsentException();
             if(this.getId() == -1){
                 String SQLPrep = "INSERT INTO Film(titre,id_rea) VALUES (?,?);";
                 PreparedStatement prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);

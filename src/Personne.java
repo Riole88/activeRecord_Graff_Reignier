@@ -135,6 +135,10 @@ public class Personne {
         return prenom;
     }
 
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
     public void setNom(String name){
         this.nom = name;
     }
@@ -206,4 +210,8 @@ public class Personne {
         prep1.execute();
     }
 
+    public String toString(){
+        String res = "Id : " + this.id + ", Nom : " + this.nom + ", Prenom : " + this.prenom;
+        return res;
+    }
 }

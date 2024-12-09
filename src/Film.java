@@ -167,4 +167,15 @@ public class Film {
     public String getTitre() {
         return titre;
     }
+
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
+
+    public String toString(){
+        String res = "Titre : " + this.titre + ", IdFilm : " + this.id + "\n";
+        Personne p = getRealisateur();
+        res += "Réalisateur : " + p.toString();
+        return res;
+    }
 }
